@@ -1,18 +1,43 @@
 const canvas = document.getElementById('board')
 const context = canvas.getContext('2d')
-const square = {
-	x : 200,
-	y : 500,
-	size : 25,
-	speed : 25,
-	direction : 'ArrowRight'
-}
 const UPDATE_INTERVAL = 250
 
-function drawSquare() {
-	context.clearRect(0, 0, canvas.width, canvas.height)
-	context.fillStyle = '#EE9977'
-	context.fillRect(square.x, square.y, square.size, square.size)
+class Fruit {
+	constructor() {
+		this.x = 750
+		this.y = 500
+		this.size = 25
+	}
+
+	setPos() {
+		this.x = Math.floor(Math.random() * 1001)
+		this.y = Math.floor(Math.random() * 1001)
+	}
+
+	draw() {
+		context.fillStyle = '#77BBBB'
+		context.fillRect(this.x, this.y, this.size, this.size)
+	}
+}
+
+class Square {
+	constructor() {
+		this.x = 200
+		this.y = 500
+		this.size = 25
+		this.speed = 25
+		this.direction = 'ArrowRight'
+	}
+	
+	setPos() {
+		this.x = Math.floor(Math.random() * 1001)
+		this.y = Math.floor(Math.random() * 1001)
+	}
+	
+	draw() {
+		context.fillStyle = '#EE9977'
+		context.fillRect(this.x, this.y, this.size, this.size)
+	}
 }
 
 function moveSquare(direction) {
@@ -25,10 +50,22 @@ function moveSquare(direction) {
 	} else if (direction === 'ArrowDown') {
 		square.y += square.speed
 	}
-	drawSquare()
+	drawSquare(square)
+}
+
+function eatFruit() {
+	if (square.x === fruit.x && square.y === fruit.y) {
+		context.clearRect(fruit.x, fruit.y, fruit.size, fruit.size)
+		randomFruitPos()
+		context.fillStyle = '#009977'
+		context.fillRect(fruit.x, fruit.y, fruit.size, fruit.size)
+	}
 }
 
 function update() {
+	context = clearRect(0, 0, canvas.width, canvas.height)
+	fruit.draw()
+	square.draw()
 	moveSquare(square.direction)
 	boardOut()
 }
@@ -36,7 +73,9 @@ function update() {
 function reset() {
 	square.x = 200
 	square.y = 500
-	direction = 'ArrowRight'
+	square.direction = 'ArrowRight'
+	fruit.x = 750
+	fruit.y = 500
 }
 
 function gameOver() {
@@ -49,6 +88,11 @@ function boardOut() {
 		gameOver()
 	}
 }
+
+const square = new Square()
+const fruit = new Fruit()
+square.draw()
+fruit.draw()
 
 window.addEventListener('keydown', event => {
 	const key = event.key

@@ -72,7 +72,7 @@ function Snake() {
     
         // 벽에 부딪히는 경우 게임 오버 처리
         if (this.x < 0 || this.y < 0 || this.x >= canvas.width || this.y >= canvas.height) {
-            gameOver();
+          gameOver();
         }
     };
     

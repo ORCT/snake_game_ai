@@ -2,6 +2,7 @@ const canvas = document.getElementById('board')
 const context = canvas.getContext('2d')
 const UPDATE_INTERVAL = 100
 const SCALE = 25
+let score = 0
 
 class Fruit {
 	constructor() {
@@ -16,7 +17,7 @@ class Fruit {
   }
 
 	draw() {
-		context.fillStyle = '#77BBBB'
+		context.fillStyle = '#FF9999'
 		context.fillRect(this.x, this.y, this.size, this.size)
 	}
 }
@@ -24,9 +25,9 @@ class Fruit {
 class Snake {
 	constructor() {
     this.body =[{x:200, y:500}]
+		this.xSpeed = 0
+		this.ySpeed = 0
 		this.size = SCALE
-		this.speed = 25
-		this.direction = null
 	}
 	
 	draw() {
@@ -36,19 +37,30 @@ class Snake {
     })
 	}
 
+	changeDirection(key) {
+		if (this.xSpeed !== SCALE && key === 'ArrowLeft') {
+			this.xSpeed = -SCALE
+			this.ySpeed = 0
+		} else if (this.ySpeed !== -SCALE && key === 'ArrowDown') {
+			this.ySpeed = SCALE
+			this.xSpeed = 0
+		} else if (this.xSpeed !== -SCALE && key === 'ArrowRight') {
+			this.xSpeed = SCALE
+			this.ySpeed = 0
+		} else if (this.ySpeed !== SCALE && key === 'ArrowUp') {
+			this.ySpeed = -SCALE
+			this.xSpeed = 0
+		}
+	}
+
 	move() {
     const head = {...this.body[0]}
-		if (this.direction === 'ArrowLeft') {
-			head.x -= this.speed
-		} else if (this.direction === 'ArrowUp') {
-			head.y -= this.speed
-		} else if (this.direction === 'ArrowRight') {
-			head.x += this.speed
-		} else if (this.direction === 'ArrowDown') {
-			head.y += this.speed
-		}
+		head.x += this.xSpeed
+		head.y += this.ySpeed
     this.body.unshift(head)
     if (head.x === fruit.x && head.y === fruit.y) {
+			score++
+			document.getElementById("score").textContent = score
       fruit.setPos()
     } else {
       this.body.pop()
@@ -62,24 +74,36 @@ function gameOver() {
 }
 
 function boardOut(head) {
-  if (head.x > canvas.width || head.x < -SCALE || head.y > canvas.height || head.y < -SCALE) {
+  if (head.x >= canvas.width || head.x < 0 || head.y >= canvas.height || head.y < 0) {
     gameOver()
   }
 }
 
+function selfCollision() {
+	for (let i = 1; i < snake.body.length; i++) {
+		if (snake.body[0].x === snake.body[i].x && snake.body[0].y === snake.body[i].y) {
+			gameOver()
+		}
+	}
+}
+
 function reset() {
   snake.body = [{x:200, y:500}]
-	snake.direction = null
+	snake.xSpeed = 0
+	snake.ySpeed = 0
 	fruit.x = 750
 	fruit.y = 500
+	score = 0
+	document.getElementById("score").textContent = score
 }
 
 function update() {
   context.clearRect(0, 0, canvas.width, canvas.height)
   fruit.draw()
+	snake.move()
   snake.draw()
-  snake.move()
   boardOut(snake.body[0])
+	selfCollision()
 }
 
 // main
@@ -91,7 +115,7 @@ fruit.draw()
 
 window.addEventListener('keydown', event => {
 	const key = event.key
-	snake.direction = key
+	snake.changeDirection(key)
 })
 
 setInterval(() => {
